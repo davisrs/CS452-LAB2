@@ -23,7 +23,14 @@ init (void)
 	glGenVertexArrays(NumVAOs, VAO);
 	glBindVertexArray(VAOs[Triangles]);
 	
-	GLf
+	GLfloat vertices[NumVertices][2] = {
+		{-0.90, -0.90}, //Triangle 1
+		{ 0.85, -0.90},
+		{-0.90,  0.85},
+		{ 0.90, -0.85},
+		{ 0.90,  0.90},
+		{-0.85,  0.90}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
