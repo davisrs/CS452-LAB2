@@ -1,66 +1,61 @@
 // http://www.arcsynthesis.org/gltut/index.html
 // The framework file expects 5 functions to be defined: defaults, init, display, reshape, and keyboard
+
 #include <iostream>
 using namespace std;
 
-#include "vg1.h";
-#include "LoadShaders.h";
+#include "vgl.h"
+#include "LoadShaders.h"
 
-enum VAO_IDS { Triangles, NumVAOs };
-enum Buffer_IDs { ArrayBuffer, NumVAOs };
+enum VAO_IDs { Triangles, NumVAOs };
+enum Buffer_IDs { ArrayBuffer, NumBuffers };
 enum Attrib_IDs { vPosition = 0 };
 
-GLUint VAOs[NumVAOs];
+GLuint VAOs[NumVAOs];
 GLuint Buffers[NumBuffers];
-
-const GLunint NumVertices = 6;
+const GLuint NumVertices = 6;
 
 ///////////////////////////////////////////////////////////////////////////////
 //	init
 ///////////////////////////////////////////////////////////////////////////////
-init (void)
+
+void
+init(void)
 {
-	glGenVertexArrays(NumVAOs, VAO);
+	glGenVertexArrays(NumVAOs, VAOs);
 	glBindVertexArray(VAOs[Triangles]);
-	
 	GLfloat vertices[NumVertices][2] = {
-		{-0.90, -0.90}, //Triangle 1
-		{ 0.85, -0.90},
-		{-0.90,  0.85},
-		{ 0.90, -0.85},
-		{ 0.90,  0.90},
-		{-0.85,  0.90}
+		{-0.90, -0.90 }, // Triangle 1
+		{ 0.85, -0.90 },
+		{-0.90,  0.85 },
+		{ 0.90, -0.85 }, // Triangle 2
+		{ 0.90,  0.90 },
+		{-0.85,  0.90 }
 	};
-	
 	glGenBuffers(NumBuffers, Buffers);
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers[ArrayBuffer]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verices), vertices, GL_STATIC_DRAW);
-	
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
+	vertices, GL_STATIC_DRAW);
 	ShaderInfo shaders[] = {
 		{ GL_VERTEX_SHADER, "triangles.vert" },
 		{ GL_FRAGMENT_SHADER, "triangles.frag" },
 		{ GL_NONE, NULL }
 	};
-	
 	GLuint program = LoadShaders(shaders);
-	glUseProgram(Program);
-	
-	glVertexPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, BUFFFER_OFFSET(0));
-	glEnableVertexAttribArry(vPosition);
+	glUseProgram(program);
+	glVertexAttribPointer(vPosition, 2, GL_FLOAT,GL_FALSE, 0, BUFFER_OFFSET(0));
+	glEnableVertexAttribArray(vPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //	display
 ///////////////////////////////////////////////////////////////////////////////
-
 void
 display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	
 	glBindVertexArray(VAOs[Triangles]);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
-	
 	glFlush();
 }
 
