@@ -16,7 +16,7 @@
 
 // This is the .cpp file it contains the actual code for the functions in the myInitShaders.h file
 
-// Big thanks to Google, Alexander Macri (Alex), and the Angel book!
+// Big thanks to Google, Alexander Macri (Alex), and the Edward Angel (blue) book!
 
 //All the includes
 #ifndef INITSHADERS_H_
@@ -33,7 +33,7 @@
 #include <iostream>
 using namespace std;
 
-//book
+//My Code (based on alex and Angel's' textbook's example')
 static char*
 readShaderSource(const char* shaderFile)//this funtion loads the shader from the vertex.glsl and fragments.glsl shader files
 						    //  and returns a string (buf) containing all the chars from the .glsl files
@@ -46,7 +46,7 @@ readShaderSource(const char* shaderFile)//this funtion loads the shader from the
     	//SOURCE:http://stackoverflow.com/questions/2174889/whats-the-differences-between-r-and-rb-in-fopen
 
     if ( fp == NULL ) {//check to see if file is opened
-	fprintf(stderr,"Sorry. Was unable to open file '%s' Does it exist?\n",shaderFile);
+	fprintf(stderr,"Sorry. Was unable to open file '%s' Does it even exist?\n",shaderFile);
 	return NULL; }
 	
 	//neat way to get the length of the file
@@ -59,7 +59,7 @@ readShaderSource(const char* shaderFile)//this funtion loads the shader from the
 	fread(buf, 1, size, fp);
 	
 	if(ftell(fp) == 0){//checks to see if the file is empty
-		fprintf(stderr, "File '%s' is empty.\n",shaderFile);
+		fprintf(stderr, "Sorry. This file you gave me: '%s' is empty. WTF?\n",shaderFile);
 		return NULL;
 	}
 
@@ -70,3 +70,155 @@ readShaderSource(const char* shaderFile)//this funtion loads the shader from the
 	//ALEX's NOTE: if the file is unable to open or is empty this function will segmentation fault your program
 }
 
+// Angel's Way
+
+// Create a GLSL program object from vertex and fragment shader files
+GLuint
+InitShader(const char* vShaderFile, const char* fShaderFile)
+{
+    struct Shader {
+	const char*  filename;
+	GLenum       type;
+	GLchar*      source;
+    }  shaders[2] = {
+	{ vShaderFile, GL_VERTEX_SHADER, NULL },
+	{ fShaderFile, GL_FRAGMENT_SHADER, NULL }
+    };
+
+    GLuint program = glCreateProgram();
+    
+    for ( int i = 0; i < 2; ++i ) {
+	Shader& s = shaders[i];
+	s.source = readShaderSource( s.filename );
+	if ( shaders[i].source == NULL ) {
+	    std::cerr << "Failed to read " << s.filename << std::endl;
+	    exit( EXIT_FAILURE );
+	}
+
+	GLuint shader = glCreateShader( s.type );
+	glShaderSource( shader, 1, (const GLchar**) &s.source, NULL );
+	glCompileShader( shader );
+
+	GLint  compiled;
+	glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
+	if ( !compiled ) {
+	    std::cerr << s.filename << " failed to compile:" << std::endl;
+	    GLint  logSize;
+	    glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &logSize );
+	    char* logMsg = new char[logSize];
+	    glGetShaderInfoLog( shader, logSize, NULL, logMsg );
+	    std::cerr << logMsg << std::endl;
+	    delete [] logMsg;
+
+	    exit( EXIT_FAILURE );
+	}
+
+	delete [] s.source;
+
+	glAttachShader( program, shader );
+    }
+
+    /* link  and error check */
+    glLinkProgram(program);
+
+    GLint  linked;
+    glGetProgramiv( program, GL_LINK_STATUS, &linked );
+    if ( !linked ) {
+	std::cerr << "Shader program failed to link" << std::endl;
+	GLint  logSize;
+	glGetProgramiv( program, GL_INFO_LOG_LENGTH, &logSize);
+	char* logMsg = new char[logSize];
+	glGetProgramInfoLog( program, logSize, NULL, logMsg );
+	std::cerr << logMsg << std::endl;
+	delete [] logMsg;
+
+	exit( EXIT_FAILURE );
+    }
+
+    /* use program object */
+    glUseProgram(program);
+
+    return program;
+}
+
+// Alex
+GLuint
+LoadShaders( ShaderInfo* shaders )
+{
+    if ( shaders == NULL ) { return 0; }
+
+    GLuint program = glCreateProgram();
+
+    ShaderInfo* entry = shaders;
+    while ( entry->type != GL_NONE ) {
+        GLuint shader = glCreateShader( entry->type );
+
+        entry->shader = shader;
+
+        const GLchar* source = ReadShader( entry->filename );
+        if ( source == NULL ) {
+            for ( entry = shaders; entry->type != GL_NONE; ++entry ) {
+                glDeleteShader( entry->shader );
+                entry->shader = 0;
+            }
+
+            return 0;
+        }
+
+        glShaderSource( shader, 1, &source, NULL );
+        delete [] source;
+
+        glCompileShader( shader );
+
+        GLint compiled;
+        glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
+        if ( !compiled ) {
+#ifdef _DEBUG
+            GLsizei len;
+            glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
+
+            GLchar* log = new GLchar[len+1];
+            glGetShaderInfoLog( shader, len, &len, log );
+            std::cerr << "Shader compilation failed: " << log << std::endl;
+            delete [] log;
+#endif /* DEBUG */
+
+            return 0;
+        }
+
+        glAttachShader( program, shader );
+        
+        ++entry;
+    }
+
+#ifdef GL_VERSION_4_1
+    if ( GLEW_VERSION_4_1 ) {
+        // glProgramParameteri( program, GL_PROGRAM_SEPARABLE, GL_TRUE );
+    }
+#endif /* GL_VERSION_4_1 */
+    
+    glLinkProgram( program );
+
+    GLint linked;
+    glGetProgramiv( program, GL_LINK_STATUS, &linked );
+    if ( !linked ) {
+#ifdef _DEBUG
+        GLsizei len;
+        glGetProgramiv( program, GL_INFO_LOG_LENGTH, &len );
+
+        GLchar* log = new GLchar[len+1];
+        glGetProgramInfoLog( program, len, &len, log );
+        std::cerr << "Shader linking failed: " << log << std::endl;
+        delete [] log;
+#endif /* DEBUG */
+
+        for ( entry = shaders; entry->type != GL_NONE; ++entry ) {
+            glDeleteShader( entry->shader );
+            entry->shader = 0;
+        }
+        
+        return 0;
+    }
+
+    return program;
+}
