@@ -1,0 +1,42 @@
+Most OpenGL applications consists of 3 parts:
+	(1) The application program (This is the source code file which has the main() function in it.)
+	(2) A vertex shader
+	(3) A fragment shader
+
+Part (1) is written in C/C++, but parts (2) and (3) are not! They are written in GLSL as regular text files!
+
+In order to get parts 2 and 3 (GLSL) to play nice and work with part 1 (C) we MUST connect these entities.
+
+In order to do this we must:
+	(1) Read the source code from the GLSL file. (Done)
+	(2) Compile those individual parts we just read
+	(3) Link everything together
+	
+The objective of this lab was to create a header file that will do those 3 things.
+
+The code works by:
+
+Step 1) Create a container known as "program object" that holds our (two) shaders (GLSL) and a shader object for each shader (The shaderInfo struct)
+
+	The "program object" has a GLUint value. This value is used to refer to the program object in our application.
+	
+Step 2) After the "program object" has been created, we attempt to attach the shaders to the program object.
+
+	-Remember the shaders are only text files. We can read them in as strings. While reading the text files I did error checking to see if the
+	file was able to be opened and if the file was empty, displaying error messages to the user and returning to the app with a NULL if this was the case.
+	
+Step 3) The read strings are attached to the program object and the program object is compiled.
+
+Step 4) If compilation was successful, then the application and shaders can be linked together in the main() function:
+
+	-Example:
+	GLuint program;//the program object
+	program = InitShader("vshader.glsl", "fshader.glsl")
+	
+Step 5) Once the program object and shaders have been linked together, the names of the shader variables are bound to indices in tables created by the linking process.
+
+	-Example:
+	glGetAttribLocation() returns the index of an attribute variable (such as the vertex location attribute vPosition of our vertexShader - useful for transforms)
+	
+Step 6) The app must now do 2 things:
+	(1) enable vertix attributes in our shaders (glEnableVertexA
