@@ -26,5 +26,6 @@ GLuint createShader(GLenum type, const GLchar* shadeSource);
 const GLchar* inputShader(const char* filename);
 GLuint createProgram(const vector<GLuint> shadeList);
 
-//MINE
+//Mine
+const char* readShaderSource(const char* shaderFile)
 
