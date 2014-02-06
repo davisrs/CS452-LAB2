@@ -9,22 +9,22 @@
 // +Uses the shader program.
 // +Write a step by step decription of the process in creating a shader program.
 
-//All the includes
-#ifndef INITSHADERS_H_
-#define INITSHADERS_H_
+//This is the .h file, it contains function prototypes and typedefs for used by the myInitShaders.cpp file
 
-//#include "SDL2/SDL.h"
-#include "GL/glew.h"
-#include "GL/freeglut.h"
-#include "GL/gl.h"
-#include "GL/glu.h"
+//Typedefs:
+// ShaderInfo is a struct consisting of: type (a GLenum, filename (a string of characters), and a GLuint (integer) named shader
+typedef struct {
+    GLenum       type;
+    const char*  shaderFile;
+    GLuint       shader;
+} ShaderInfo;
 
-#include <vector>
-#include <cstdio>
-#include <iostream>
-using namespace std;
+GLuint LoadShaders( ShaderInfo* );
 
 //function prototypes
 GLuint createShader(GLenum type, const GLchar* shadeSource);
 const GLchar* inputShader(const char* filename);
 GLuint createProgram(const vector<GLuint> shadeList);
+
+//MINE
+
