@@ -27,7 +27,7 @@ readMeShaderFile(const char* shaderFileName){//The magic happens here
 	readInFile = fopen(shaderFileName, "r");//open as read only, last thing we want to do is change anything //be sure to close this later
 	if (readInFile == NULL ) { //If the file be empty
 		return NULL;//return empty
-		std::cerr << "ERROR: The file you gave me " << s.readFile << " was empty. WTF?";//and yell at the programmer
+		std::cerr << "WARNING: The file you gave me " << s.readFile << " was empty. WTF?";//and yell at the programmer
 	}//Enough yelling
 
 	fseek(readInFile, 0L, SEEK_END);//No binary header=No offset, Find the end of that File!
@@ -53,7 +53,7 @@ GLuint InitShader(const char* vShaderFileName, const char* fShaderFileName){
         //Local Vars
 	GLuint program //the program object which contains our shaders!
 	const int numShaders = 2;//number of shaders in our array of shaders, typically 2, a vertex + a fragment shader
-	GLuint shaderID = //this is the OpenGL shader object//is this that ShaderID object?
+
 	//Structure of a Shader
 	struct Shader {//Our typical shader consists of: //NOTE: does not contain OpenGL shader objects
 		const char*	filename;//the name of it's GLSL file
@@ -75,8 +75,9 @@ GLuint InitShader(const char* vShaderFileName, const char* fShaderFileName){
 			std:cerr << "Failed to read " << s.filename << std::endl;
 			exit( EXIT_FAILURE );//Yell at the programmer and kill the process in FAILURE
 		}//end if statement
-		
-		shaderID = glCreateShader(s.type);//Create an empty shader object of appropriate type specified in the Shader array and return a nonzero ID#
+	        GLuint shaderID;//this is the identifier handle number for a OpenGL shader object--there is one for each of our shaders [in this case 2: vertex and fragment]
+
+		shaderID = glCreateShader(s.type);//Create an empty shader object of appropriate type specified in the Shader array of the for loop counter and return a nonzero ID#
 		glShaderSource(shaderID, 1, (const CLchar**) &s.source, NULL);//replace the source code in a the empty shader object handled by shaderID with the string of GLSL code in s.source
 		glCompileShader( shaderID );//compiles the source code strings that have been stored in the shader object specified by shaderID
 
@@ -84,10 +85,44 @@ GLuint InitShader(const char* vShaderFileName, const char* fShaderFileName){
 //Shading Language Specification. Whether or not the compilation was successful, information about the 
 //compilation can be obtained from the shader object's information log by calling glGetShaderInfoLog
 
-		GLint compiled;//
-		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &compiled );
+		GLint compiled;//varaible to hold result of if the compilation suceessful
+		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &compiled );//sets compiled to GL_TRUE if last compile of shaderID successful
+		if ( !compiled ) {//if compilation fails
+			std::cerr << s.filename << " failed to compile:"<<std::endl;//yell at the programmer
+			GLUint logSize;//variable for logsize
+			glGetShaderiv( shaderID, GL_INFO_LOG_LENGTH, &logSize );//sets value of logsize
+			char* logMSg = new char[logSize];//creates a dynamic string big enough to hold the compilation log's message
+			glGetShaderInfoLog( shader, logSize, NULL, logMsg );//return the information log for the shader object referred to by shaderID, allow a buffer of LogSize char in length and store it in logMsg //the length of the string in the log isn't required so that parameter is NULL
+			std:cerr << logMsg << endl;//Yell at the programmer whatever error was in the shader's compilation log when it failed
+			delete [] logMsg;//Clean up after yourself! Remove dynamic objects when finished with them!
+			exit( EXIT_FAILURE );//having yelled at the programmer, kill the process in FAILURE
+		}//end if loop
+
+		delete [] s.source// Clean up after yourself! Remove dynamic objects when finished with them!
+		glAttachShader( program, shaderID );//FINALLY//attaches a shader object to a program object
 	}//end for loop
 
+	//link and error check -- very similiar to above except with a programID instead of shaderID
+	glLinkProgram(program);
+
+	GLint	linked;
+	glGetProgramiv( program, GL_LINK_STATUS, &linked );
+	if ( !linked ){
+		std::cerr << "Shader program failed to link" << std::endl;
+		GLint logSize;
+		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize );
+		char* logMsg = new char[logSize];
+		glGetProgramInfoLog ( program, logSize, NULL, logMsg );
+		std::cerr << logMsg << std::endl;
+		delete [] logMsg;
+
+		exit( EXIT_FAILURE );
+	}//end if loop
+	
+	//Use program object--Finally!
+	glUseProgram(program);//
+	
+	return program;//
 }//End the InitShaderFunction
 
 
