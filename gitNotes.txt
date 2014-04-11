@@ -1,0 +1,2 @@
+git add . //ADD files only -- keeps files I have removed from the directory on git
+git add -A //make github look exactly like the physical directory --add new files and remove ones I don't have

@@ -1,6 +1,6 @@
 //the god damn Shader Loader Program
 //By Richard Davis: Computer Engineer Clarkson university Spring 2014
-//CU # 0207763
+
 
 //Shaders are this mini programs that run on the GPU instead of CPU
 //But we need to get them there
@@ -41,6 +41,55 @@ readMeShaderFile(const char* shaderFileName){//The magic happens here
 
 	return buffy;//Return a buffer that includes everything in that was in that file
 }//End ze readMeShaderFile function
+
+//Having the shader code in our buffer, we can use that to create GLSL program oobjects to invoke!
+
+//Function #2
+GLuint InitShader(const char* vShaderFileName, const char* fShaderFileName){
+	//Given the names of our vertex and fragment shader files containing precious GLSL code on our hard drive, generate a GLSL program object!
+        //Input:vShaderFileName = the .glsl file on your hardrive that has your vertex shader code in it... goes here
+	//fShaderFileName = the .glsl file on your hardrive that has your fragment shader code in it... goes here
+        //Output: GLuint program //the program object containing all of aour shaders!
+        //Local Vars
+	GLuint program //the program object which contains our shaders!
+	const int numShaders = 2;//number of shaders in our array of shaders, typically 2, a vertex + a fragment shader
+	GLuint shaderID = //this is the OpenGL shader object//is this that ShaderID object?
+	//Structure of a Shader
+	struct Shader {//Our typical shader consists of: //NOTE: does not contain OpenGL shader objects
+		const char*	filename;//the name of it's GLSL file
+		GLenum  	type;//Shader's type-- Usually this is either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
+		GLchar*		source;//This is what is in the GLSL file, default to NULL before loading
+	}//End Shader Structure
+	shaders[numShaders] = {//Since we usually have 2 shaders, create an array of ...well... 2 shaders
+		{ vShaderFileName, GL_VERTEX_SHADER, NULL }, //The Vertex Shader
+		{ fShaderFileName, GL_FRAGMENT_SHADER, NULL  }//The Fragment Shader
+	};//End array of shaders
+	
+	program = glCreateProgram ();//YES!creates an empty program object
+	
+	//increment through our array of shaders and load their actual values
+	for ( int i = 0; i < numShaders; ++i) {//I learned something NEW! ++i != i++ apparently //EG i=0, x=i++ -> i=1, x=1 (post value of i) vs x=++i -> i=1, x=0 (pre value of i_) 
+		Shader& s = shaders[i];//create a pointer to the ith shader in the array? -- named s for ease of typing
+		s.source = readMeShaderFile(s.filename); //Swizzling is nice
+		if ( s.source == NULL ) {//if the shader file is empty
+			std:cerr << "Failed to read " << s.filename << std::endl;
+			exit( EXIT_FAILURE );//Yell at the programmer and kill the process in FAILURE
+		}//end if statement
+		
+		shaderID = glCreateShader(s.type);//Create an empty shader object of appropriate type specified in the Shader array and return a nonzero ID#
+		glShaderSource(shaderID, 1, (const CLchar**) &s.source, NULL);//replace the source code in a the empty shader object handled by shaderID with the string of GLSL code in s.source
+		glCompileShader( shaderID );//compiles the source code strings that have been stored in the shader object specified by shaderID
+
+//Note: Compilation of a shader can fail for a number of reasons as specified by the OpenGL ES 
+//Shading Language Specification. Whether or not the compilation was successful, information about the 
+//compilation can be obtained from the shader object's information log by calling glGetShaderInfoLog
+
+		GLint compiled;//
+		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &compiled );
+	}//end for loop
+
+}//End the InitShaderFunction
+
 
 }//Close the angel namespace block
 
