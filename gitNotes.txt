@@ -1,2 +1,21 @@
 git add . //ADD files only -- keeps files I have removed from the directory on git
 git add -A //make github look exactly like the physical directory --add new files and remove ones I don't have
+
+//Changes
+	deleted:    AlexInitShaders.h
+	deleted:    AngelsInitShader.cpp
+	deleted:    LoadShaders.cpp
+	deleted:    LoadShaders.h
+	deleted:    ReverseEngineering LoadShaders.h
+	deleted:    myInitShaders.cpp
+	deleted:    myInitShaders.h
+	deleted:    myInitShadersAll.h
+
+//websites
+http://www.cplusplus.com/doc/tutorial/variables/
+http://www.cplusplus.com/doc/tutorial/pointers/
+https://www.opengl.org/wiki/Data_Type_%28GLSL%29
+http://askubuntu.com/questions/115388/is-it-possible-to-have-window-transparency-in-mutter-gnome-shell
+http://www.techrepublic.com/blog/10-things/10-things-ive-grown-to-love-about-gnome-3/2631/#.
+http://www.khronos.org/opengles/sdk/docs/man/xhtml/glCompileShader.xml
+http://www.khronos.org/opengles/sdk/docs/man/xhtml/glAttachShader.xml

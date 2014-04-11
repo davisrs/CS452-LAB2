@@ -1,4 +1,4 @@
-//the god damn Shader Loader Program
+//the damn Shader Loader Program
 //By Richard Davis: Computer Engineer Clarkson university Spring 2014
 
 
