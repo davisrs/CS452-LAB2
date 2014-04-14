@@ -1,4 +1,4 @@
-#include "myInitShadersAll.h"
+#include "ShaderLoader.cpp"
 using namespace std;
 int counter=0;//counter to increase how many vertices are going to be drawn at a given time
 
