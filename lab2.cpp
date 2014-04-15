@@ -1,38 +1,39 @@
 #include "ShaderLoader.cpp"
+#include "Angel.h"
 using namespace std;
 int counter=0;//counter to increase how many vertices are going to be drawn at a given time
 
 GLuint vaoID, vboID[2];//vao and vbo names
-
-GLfloat vertexarray[]={0.5f,0.5f,0.0f,//vertice array
-			1.0f,0.0f,0.0f,
-                       0.5f,-0.5f,0.0f, 
-                       0.0f,-1.0f,0.0f,
-                       -0.5f,-0.5f,0.0f, 
-                        -1.0f,0.0f,0.0f,
-                       -0.5f,0.5f,0.0f,
-                      	0.0f,1.0f,0.0f
+			//x	y	z	//Vertex Array
+GLfloat vertexarray[]={	0.5f,	0.5f,	0.0f,	//
+			1.0f,	0.0f,	0.0f,	//
+                       	0.5f,	-0.5f,	0.0f,	//
+                       	0.0f,	-1.0f,	0.0f,	//
+                       	-0.5f,	-0.5f,	0.0f,	//
+                        -1.0f,	0.0f,	0.0f,	//
+                       	-0.5f,	0.5f,	0.0f,	//
+                      	0.0f,	1.0f,	0.0f	//
                        };
-                       
-GLfloat colorarray[]={1.0f,1.0f,0.0f,1.0f,//color array
-                       0.0f,1.0f,0.0f,1.0f,
-                       1.0f,0.0f,1.0f,1.0f,
-                       0.5f,0.5f,1.0f,1.0f,
-                       1.0f,0.5f,0.5f,1.0f,
-                       0.0f,1.0f,0.5f,1.0f,
-                       0.5f,0.5f,0.5f,1.0f,
-                       1.0f,0.5f,1.0f,1.0f
+                       //r	g	b	alpha	//color array
+GLfloat colorarray[]={	1.0f,	1.0f,	0.0f,	1.0f,	//yellow
+                       	0.0f,	1.0f,	0.0f,	1.0f,	//green
+                       	1.0f,	0.0f,	1.0f,	1.0f,	//purple
+                       	0.5f,	0.5f,	1.0f,	1.0f,	//
+                       	1.0f,	0.5f,	0.5f,	1.0f,	//
+                       	0.0f,	1.0f,	0.5f,	1.0f,	//
+                       	0.5f,	0.5f,	0.5f,	1.0f,	//
+                       	1.0f,	0.5f,	1.0f,	1.0f	//
                        };                       
 
 void init(){
 
-  ShaderInfo shaders[]={
-  { GL_VERTEX_SHADER , "vertexshader.glsl"} ,
-  { GL_FRAGMENT_SHADER , "fragmentshader.glsl"},
-  { GL_NONE , NULL} 
-  };
+//  ShaderInfo shaders[]={
+//  { GL_VERTEX_SHADER , "vertexshader.glsl"} ,
+//  { GL_FRAGMENT_SHADER , "fragmentshader.glsl"},
+//  { GL_NONE , NULL} 
+//  };
 
-  initShaders(shaders);
+  InitShader("vertexshader.glsl", "fragmentshader.glsl");
   
   glGenVertexArrays(1, &vaoID);
   glBindVertexArray(vaoID);

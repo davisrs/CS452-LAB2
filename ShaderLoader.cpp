@@ -45,7 +45,7 @@ readMeShaderFile(const char* shaderFileName){//The magic happens here
 //Having the shader code in our buffer, we can use that to create GLSL program oobjects to invoke!
 
 //Function #2
-GLint InitShader(const char* vShaderFileName, const char* fShaderFileName){
+GLuint InitShader(const char* vShaderFileName, const char* fShaderFileName){
 	//Given the names of our vertex and fragment shader files containing precious GLSL code on our hard drive, generate a GLSL program object!
         //Input:vShaderFileName = the .glsl file on your hardrive that has your vertex shader code in it... goes here
 	//fShaderFileName = the .glsl file on your hardrive that has your fragment shader code in it... goes here
@@ -78,7 +78,7 @@ GLint InitShader(const char* vShaderFileName, const char* fShaderFileName){
 	        GLint shaderID;//this is the identifier handle number for a OpenGL shader object--there is one for each of our shaders [in this case 2: vertex and fragment]
 
 		shaderID = glCreateShader(s.type);//Create an empty shader object of appropriate type specified in the Shader array of the for loop counter and return a nonzero ID#
-		glShaderSource(shaderID, 1, (const CLchar**) &s.source, NULL);//replace the source code in a the empty shader object handled by shaderID with the string of GLSL code in s.source
+		glShaderSource(shaderID, 1, (const GLchar**) &s.source, NULL);//replace the source code in a the empty shader object handled by shaderID with the string of GLSL code in s.source
 		glCompileShader( shaderID );//compiles the source code strings that have been stored in the shader object specified by shaderID
 
 //Note: Compilation of a shader can fail for a number of reasons as specified by the OpenGL ES 
@@ -98,31 +98,31 @@ GLint InitShader(const char* vShaderFileName, const char* fShaderFileName){
 			exit( EXIT_FAILURE );//having yelled at the programmer, kill the process in FAILURE
 		}//end if loop
 
-		delete [] s.source// Clean up after yourself! Remove dynamic objects when finished with them!
+		delete [] s.source;// Clean up after yourself! Remove dynamic objects when finished with them!
 		glAttachShader( program, shaderID );//FINALLY//attaches a shader object to a program object
 	}//end for loop
 
 	//link and error check -- very similiar to above except with a programID instead of shaderID
-	glLinkProgram(program);
+	glLinkProgram(program);//links the program object specified by programID, attaching the shader objects to create a GPU executable
 
-	GLint	linked;
-	glGetProgramiv( program, GL_LINK_STATUS, &linked );
-	if ( !linked ){
-		std::cerr << "Shader program failed to link" << std::endl;
-		GLint logSize;
-		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize );
-		char* logMsg = new char[logSize];
-		glGetProgramInfoLog ( program, logSize, NULL, logMsg );
-		std::cerr << logMsg << std::endl;
-		delete [] logMsg;
+	GLint	linked;//holds the status of the link operation (GL_TRUE if linked w/o errors)
+	glGetProgramiv( program, GL_LINK_STATUS, &linked );//querry link status and assign result to linked
+	if ( !linked ){//If linking failed
+		std::cerr << "Shader program failed to link" << std::endl;//yell at the programmer
+		GLint logSize;//holds the size (# of chars) of log
+		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize );//returns # of chars in the info log for program, including null terminator, allows us to calculate the size of the buffer required to store the info log
+		char* logMsg = new char[logSize];//creates a dynamic string large enough to hold the linker's error message if it failed
+		glGetProgramInfoLog ( program, logSize, NULL, logMsg );//return the information log for the program object referred to by program, allow a buffer of LogSize char in length and store it in logMsg //the length of the string in the log isn't required so that parameter is NULL
+		std::cerr << logMsg << std::endl;//Yell at the programmer whatever error was in the shader's compilation log when it failed
+		delete [] logMsg;//Clean up after yourself! Remove dynamic objects when finished with them!
 
-		exit( EXIT_FAILURE );
+		exit( EXIT_FAILURE );//having yelled at the programmer, kill the process in FAILURE
 	}//end if loop
 	
 	//Use program object--Finally!
-	glUseProgram(program);//
+	glUseProgram(program);//Installs the program object as part of the current rendering state!
 	
-	return program;//
+	return program;//returns programID to main function
 }//End the InitShaderFunction
 
 
